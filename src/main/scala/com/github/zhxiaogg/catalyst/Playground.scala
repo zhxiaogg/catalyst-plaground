@@ -3,7 +3,7 @@ package com.github.zhxiaogg.catalyst
 import com.github.zhxiaogg.catalyst.plans.logical.ResolveRelationRule
 import com.github.zhxiaogg.catalyst.plans.physical.ExecContext
 import com.github.zhxiaogg.catalyst.plans.physical.ExecContext.ObjectTable
-import org.apache.spark.sql.catalyst.analysis.{Analyzer, EmptyFunctionRegistry}
+import org.apache.spark.sql.catalyst.analysis.{Analyzer, EmptyFunctionRegistry, FunctionRegistry}
 import org.apache.spark.sql.catalyst.catalog._
 import org.apache.spark.sql.catalyst.parser.CatalystSqlParser
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
@@ -22,7 +22,7 @@ object Playground {
   def main(args: Array[String]): Unit = {
     val plan: LogicalPlan = CatalystSqlParser.parsePlan("select id, name from users where id >= 1")
     val inMemCatalog = new InMemoryCatalog
-    val catalog = new SessionCatalog(inMemCatalog, EmptyFunctionRegistry)
+    val catalog = new SessionCatalog(inMemCatalog, FunctionRegistry.builtin)
     lazy val catalogManager = CatalogManagerUtil.create(catalog)
 
     val analyzer = new Analyzer(catalogManager) {
