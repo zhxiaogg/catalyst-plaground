@@ -2,7 +2,7 @@ package com.github.zhxiaogg.catalyst
 
 import com.github.zhxiaogg.catalyst.plans.logical.ResolveRelationRule
 import com.github.zhxiaogg.catalyst.plans.physical.ExecContext
-import com.github.zhxiaogg.catalyst.plans.physical.ExecContext.ObjectTable
+import com.github.zhxiaogg.catalyst.plans.physical.ExecContext.ObjectsRelation
 import org.apache.spark.sql.catalyst.analysis.{Analyzer, FunctionRegistry}
 import org.apache.spark.sql.catalyst.catalog.{CatalogDatabase, InMemoryCatalog, SessionCatalog}
 import org.apache.spark.sql.catalyst.parser.CatalystSqlParser
@@ -14,21 +14,27 @@ import java.net.URI
 
 object Playground2 {
 
-  case class Movie(id: Int, name: Long, tvt: Int, clicks: Int)
+  case class Movie(id: Int, name: String, tvt: Int, clicks: Int)
 
   def main(args: Array[String]): Unit = {
     val analyzer: Analyzer = createAnalyser()
 
     val movies =
-      ObjectTable[Movie](
+      ObjectsRelation[Movie](
         "movies",
-        Seq(Movie(1, 2L, 10, 10), Movie(1, 2L, 10, 10), Movie(2, 2L, 20, 10), Movie(2, 2L, 20, 10), Movie(3, 2L, 5, 5))
+        Seq(
+          Movie(1, "action", 10, 10),
+          Movie(2, "action", 10, 10),
+          Movie(3, "comedy", 20, 10),
+          Movie(4, "comedy", 20, 10),
+          Movie(5, "romance", 5, 5)
+        )
       )
     val context = ExecContext(Map("movies" -> movies))
     context.init(analyzer.catalogManager.v1SessionCatalog)
 
     val plan: LogicalPlan = CatalystSqlParser.parsePlan(
-      "select id, sum(tvt)/sum(clicks), sum(clicks) from movies group by id having sum(tvt) > 10"
+      "select name, sum(tvt)/sum(clicks), sum(clicks) from movies group by name having sum(tvt) > 10"
     )
     println(plan)
 
@@ -42,8 +48,6 @@ object Playground2 {
     // this context is important here, it means we can pass in different tables when executing the plan
     val rows = exec.execute(context)
     println(rows)
-
-    //val plan2: LogicalPlan = CatalystSqlParser.parsePlan("select id, sum(wage) from users group by id having sum(wage) > 10")
   }
 
   private def createAnalyser(): Analyzer = {
