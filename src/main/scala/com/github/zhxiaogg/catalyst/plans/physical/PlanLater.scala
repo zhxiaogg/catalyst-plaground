@@ -10,4 +10,7 @@ case class PlanLater(plan: LogicalPlan) extends ExecPlan {
   override def output: Seq[Attribute] = plan.output
 
   override def children: Seq[ExecPlan] = Seq()
+
+  override protected def withNewChildrenInternal(newChildren: IndexedSeq[ExecPlan]): ExecPlan =
+    PlanLater(plan)
 }

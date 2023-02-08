@@ -69,4 +69,8 @@ case class HashAggregateExec(
   override val output: Seq[Attribute] = results.map(_.toAttribute)
 
   override def children: Seq[ExecPlan] = Seq(child)
+
+  override protected def withNewChildrenInternal(newChildren: IndexedSeq[ExecPlan]): ExecPlan = {
+    HashAggregateExec(groupings, aggregates, results, newChildren(0))
+  }
 }

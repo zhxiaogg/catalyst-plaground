@@ -14,4 +14,8 @@ case class FilterExec(condition: Expression, child: ExecPlan) extends ExecPlan {
   override def output: Seq[Attribute] = child.output
 
   override def children: Seq[ExecPlan] = Seq(child)
+
+  override protected def withNewChildrenInternal(newChildren: IndexedSeq[ExecPlan]): ExecPlan = {
+    FilterExec(condition, newChildren(0))
+  }
 }

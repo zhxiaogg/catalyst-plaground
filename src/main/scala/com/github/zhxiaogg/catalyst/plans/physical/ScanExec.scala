@@ -12,4 +12,6 @@ case class ScanExec(table: CatalogTable, override val output: Seq[Attribute]) ex
   }
 
   override def children: Seq[ExecPlan] = Seq.empty
+
+  override protected def withNewChildrenInternal(newChildren: IndexedSeq[ExecPlan]): ExecPlan = this
 }

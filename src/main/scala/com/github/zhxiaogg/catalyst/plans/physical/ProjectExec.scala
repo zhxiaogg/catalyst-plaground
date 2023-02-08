@@ -21,4 +21,7 @@ case class ProjectExec(projectList: Seq[NamedExpression], child: ExecPlan) exten
     }
     result
   }
+
+  override protected def withNewChildrenInternal(newChildren: IndexedSeq[ExecPlan]): ExecPlan =
+    ProjectExec(projectList, newChildren(0))
 }
