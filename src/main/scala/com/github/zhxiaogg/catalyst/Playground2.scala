@@ -34,16 +34,16 @@ object Playground2 {
     context.init(analyzer.catalogManager.v1SessionCatalog)
 
     val plan: LogicalPlan = CatalystSqlParser.parsePlan(
-      "select name, sum(tvt)/sum(clicks), sum(clicks) from movies group by name having sum(tvt) > 10"
+      "select name, sum(tvt)/sum(clicks), sum(clicks) from movies group by name having sum(tvt) > 10 order by sum(clicks)"
     )
-    println(plan)
+    println(s"initital plan: ${plan}")
 
     val resolved = analyzer.execute(plan)
-    println(resolved)
+    println(s"optimized plan: ${resolved}")
 
     val planner = new InMemQueryPlanner
     val exec = planner.plan(resolved).next()
-    println(exec)
+    println(s"physical plan: ${exec}")
 
     // this context is important here, it means we can pass in different tables when executing the plan
     val rows = exec.execute(context)

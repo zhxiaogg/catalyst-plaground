@@ -3,7 +3,7 @@ package com.github.zhxiaogg.catalyst.plans.physical
 import com.github.zhxiaogg.catalyst.plans.logical.LogicalRelation
 import org.apache.spark.sql.catalyst.expressions.aggregate.AggregateExpression
 import org.apache.spark.sql.catalyst.planning.{GenericStrategy, PhysicalAggregation}
-import org.apache.spark.sql.catalyst.plans.logical.{Aggregate, Filter, LogicalPlan, Project, SubqueryAlias}
+import org.apache.spark.sql.catalyst.plans.logical.{Aggregate, Filter, LogicalPlan, Project, Sort, SubqueryAlias}
 
 class SimpleExecStrategy extends GenericStrategy[ExecPlan] {
   override protected def planLater(plan: LogicalPlan): ExecPlan = PlanLater(plan)
@@ -16,5 +16,6 @@ class SimpleExecStrategy extends GenericStrategy[ExecPlan] {
     case PhysicalAggregation(groupings, aggregates, results, child)
         if aggregates.forall(expr => expr.isInstanceOf[AggregateExpression]) =>
       Seq(HashAggregateExec(groupings, aggregates.map(_.asInstanceOf[AggregateExpression]), results, planLater(child)))
+    case Sort(order, global, child) => Seq(SortExec(order, planLater(child)))
   }
 }
